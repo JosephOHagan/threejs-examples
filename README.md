@@ -8,7 +8,7 @@ This is a repo to hold basic example code of Threejs. I suspect that A-Frame is 
 ### What is A-Frame?
 - An entity component system for Threejs
 - It's a Unity-like 3D / WebXR development tool compared to pure Threejs which is probably more like with OpenGL directly to create your application
-- TLDR: It's what you probably want to use
+- It's what you probably want to use
 
 ### Note
 I run threejs locally so you'll probably have to play around with the script import path. Check the threejs documentation. I avoid loading from a module for now as the intention is to provide example threejs code not necessarily best development practice. 
