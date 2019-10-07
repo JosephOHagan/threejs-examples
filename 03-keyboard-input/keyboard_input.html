@@ -61,13 +61,36 @@
     		makeGeometryInstance(geometry, 0x800080, -2, 0, 0),
     		makeGeometryInstance(geometry, 0x800080,  2, 0, 0),
   		];
-
-  		var cube = cubes[0];
-
+  		
 		// Add a light to the scene
 		var light = new THREE.DirectionalLight(0xFFFFFF, 1);
   		light.position.set(-1, 2, 4);
   		scene.add(light);
+
+
+  		var cube = cubes[0];
+
+		// Very raw example using keydown and modifying position of object
+		// WASD to move the centre cube and spacebar to reset it's position
+		var xSpeed = 0.1;
+		var ySpeed = 0.1;
+
+		document.addEventListener("keydown", onDocumentKeyDown, false);
+
+		function onDocumentKeyDown(event) {
+    		var keyCode = event.which;
+    		if (keyCode == 87) {
+        		cube.position.y += ySpeed;
+    		} else if (keyCode == 83) {
+		        cube.position.y -= ySpeed;
+		    } else if (keyCode == 65) {
+        		cube.position.x -= xSpeed;
+		    } else if (keyCode == 68) {
+        		cube.position.x += xSpeed;
+    		} else if (keyCode == 32) {
+        		cube.position.set(0, 0, 0);
+    		}
+		};
 
 
  		// Make the geometry spin
