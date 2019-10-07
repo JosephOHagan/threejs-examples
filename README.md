@@ -27,3 +27,4 @@ It's worth remembering when you are writing academic code that works enough to g
 - 01-spinning-cube: Heavily commented example to show setup of a camera, scene, renderer and display a rotating cubes
 - 02-spinning-cube-2: Builds on previous example, adds lighting, two additional cubes, alters renderer code
 - 03-keyboard-input: Very raw example of keyboard input to move an object around the screen (non-continuous, jumpy movement)
+- 04-viewport-resize: Shows how to make the viewport resize and camera adjust rather than being stuck at initial loaded size
