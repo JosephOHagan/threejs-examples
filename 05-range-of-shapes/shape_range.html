@@ -1,0 +1,422 @@
+<html>
+	<head>
+		<title>My first three.js app</title>
+		<style>
+			body { margin: 0; }
+			canvas { width: 100%; height: 100% }
+		</style>
+		<canvas id="c"></canvas>
+	</head>
+
+	<body>
+
+	<!-- NOTE: THIS IS A DEMO OF THREEJS BUT YOU WILL HAVE TO FIGURE OUT HOWEVER YOU IMPORT THE LIBRARY -->
+	<script src="../js/three.js"></script>
+	<script> 
+		function main() {
+			// Setup scene and camera
+			const canvas = document.querySelector('#c');
+			const renderer = new THREE.WebGLRenderer({canvas});
+			const fov = 40;
+			const aspect = 2; 
+			const near = 0.1;
+			const far = 1000;
+			const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+			camera.position.z = 120;
+
+			const scene = new THREE.Scene();
+			
+			// Change the background colour of the scene 
+			scene.background = new THREE.Color(0xAAAAAA);
+		  	{
+			    const color = 0xFFFFFF;
+			    const intensity = 1;
+			    const light = new THREE.DirectionalLight(color, intensity);
+			    light.position.set(-1, 2, 4);
+		    	scene.add(light);
+		  	}
+			{
+			    const color = 0xFFFFFF;
+			    const intensity = 1;
+			    const light = new THREE.DirectionalLight(color, intensity);
+			    light.position.set(1, -2, -4);
+			    scene.add(light);
+		  	}
+
+			  const objects = [];
+			  const spread = 15;
+
+			// Generic function to add object to the scene
+		  	function addObject(x, y, obj) {
+		    	obj.position.x = x * spread;
+		    	obj.position.y = y * spread;
+		    	scene.add(obj);
+		    	objects.push(obj);
+		  	}
+
+		  	// Create random colour for a material 
+		  	/* 	
+		  	*	Note we pass side: THREE.DoubleSide to the material
+			*	This tells threejs to draw both sides of the triangles that make up a shape
+			*	For a solid shape (e.g. a sphere) there's usually no reason to draw the backs of triangles as they all face inside the shape
+			*   In this example we draw some 2d geometry with no inside so if we don't pass this they would disappare when looking at their back side
+		  	*/
+		  	function createMaterial() {
+		    	const material = new THREE.MeshPhongMaterial({
+		      		side: THREE.DoubleSide,
+		    	});
+
+			    const hue = Math.random();
+			    const saturation = 1;
+			    const luminance = .5;
+			    material.color.setHSL(hue, saturation, luminance);
+
+			    return material;
+		  	}
+
+		  	// Pass a geometry, add a random coloured material, add to scene 
+		  	function addSolidGeometry(x, y, geometry) {
+		    	const mesh = new THREE.Mesh(geometry, createMaterial());
+		    	addObject(x, y, mesh);
+		  	}
+
+		  	// Same as above except for 2D shapes
+		  	function addLineGeometry(x, y, geometry) {
+		    	const material = new THREE.LineBasicMaterial({color: 0x000000});
+		    	const mesh = new THREE.LineSegments(geometry, material);
+		    	addObject(x, y, mesh);
+		  	}
+
+		  	// Add cube
+		  	{
+		    	const width = 8;
+		    	const height = 8;
+		    	const depth = 8;
+		    	addSolidGeometry(-2, 2, new THREE.BoxBufferGeometry(width, height, depth));
+		  	}
+		  	
+		  	// Add flat circle 
+		  	{
+		    	const radius = 7;
+		    	const segments = 24;
+		    	addSolidGeometry(-1, 2, new THREE.CircleBufferGeometry(radius, segments));
+		  	}
+		  	
+		  	// Add cone
+		  	{
+			    const radius = 6;
+			    const height = 8;
+			    const segments = 16;
+			    addSolidGeometry(0, 2, new THREE.ConeBufferGeometry(radius, height, segments));
+		  	}
+
+		  	// Add cylinder 
+		  	{
+			    const radiusTop = 4;
+			    const radiusBottom = 4;
+			    const height = 8;
+			    const radialSegments = 12;
+			    addSolidGeometry(1, 2, new THREE.CylinderBufferGeometry(radiusTop, radiusBottom, height, radialSegments));
+		  	}
+		  
+		  	// Add dodecahedron
+		  	{
+		    	const radius = 7;
+		    	addSolidGeometry(2, 2, new THREE.DodecahedronBufferGeometry(radius));
+		  	}
+		  
+		  	// Add extruded 2d shape - here a heart shape
+		  	{
+			    const shape = new THREE.Shape();
+			    const x = -2.5;
+			    const y = -5;
+			    shape.moveTo(x + 2.5, y + 2.5);
+			    shape.bezierCurveTo(x + 2.5, y + 2.5, x + 2, y, x, y);
+			    shape.bezierCurveTo(x - 3, y, x - 3, y + 3.5, x - 3, y + 3.5);
+			    shape.bezierCurveTo(x - 3, y + 5.5, x - 1.5, y + 7.7, x + 2.5, y + 9.5);
+			    shape.bezierCurveTo(x + 6, y + 7.7, x + 8, y + 4.5, x + 8, y + 3.5);
+			    shape.bezierCurveTo(x + 8, y + 3.5, x + 8, y, x + 5, y);
+			    shape.bezierCurveTo(x + 3.5, y, x + 2.5, y + 2.5, x + 2.5, y + 2.5);
+
+		    	const extrudeSettings = {
+		      		steps: 2,
+		      		depth: 2,
+		      		bevelEnabled: true,
+		      		bevelThickness: 1,
+		      		bevelSize: 1,
+		      		bevelSegments: 2,
+		    	};
+
+		    	addSolidGeometry(-2, 1, new THREE.ExtrudeBufferGeometry(shape, extrudeSettings));
+		  	}
+		  	
+		  	// Add icosahedron 
+		  	{	
+		    	const radius = 7;
+		    	addSolidGeometry(-1, 1, new THREE.IcosahedronBufferGeometry(radius));
+		  	}
+		  	
+		  	// Add shape generated by spinning a line - provide 2d silhouette as a series of points then tell threejs how many subdivisions to make as it spins the silhouette 
+		  	// around an axis
+		  	{
+		    	const points = [];
+		    	for (let i = 0; i < 10; ++i) {
+		      		points.push(new THREE.Vector2(Math.sin(i * 0.2) * 3 + 3, (i - 5) * .8));
+		    	}
+		    	addSolidGeometry(0, 1, new THREE.LatheBufferGeometry(points));
+		  	}
+		  
+		  	// Add octahedron		
+		  	{
+		    	const radius = 7;
+		    	addSolidGeometry(1, 1, new THREE.OctahedronBufferGeometry(radius));
+		  	}
+		  	
+		  	// Add surface generated by providing a function which takes a 2d point from a grid and returns the corresponding 3d point 
+		  	{		  
+				// function from: https://github.com/mrdoob/three.js/blob/b8d8a8625465bd634aa68e5846354d69f34d2ff5/examples/js/ParametricGeometries.js
+		    	function klein(v, u, target) {
+		      		u *= Math.PI;
+		      		v *= 2 * Math.PI;
+		      		u = u * 2;
+
+				    let x;
+				    let z;
+
+		      		if (u < Math.PI) {
+		          		x = 3 * Math.cos(u) * (1 + Math.sin(u)) + (2 * (1 - Math.cos(u) / 2)) * Math.cos(u) * Math.cos(v);
+		          		z = -8 * Math.sin(u) - 2 * (1 - Math.cos(u) / 2) * Math.sin(u) * Math.cos(v);
+		      		} else {
+		          		x = 3 * Math.cos(u) * (1 + Math.sin(u)) + (2 * (1 - Math.cos(u) / 2)) * Math.cos(v + Math.PI);
+		          		z = -8 * Math.sin(u);
+		      		}
+
+		      		const y = -2 * (1 - Math.cos(u) / 2) * Math.sin(v);
+
+		      		target.set(x, y, z).multiplyScalar(0.75);
+		    	}
+
+		    	const slices = 25;
+		    	const stacks = 25;
+		    	addSolidGeometry(2, 1, new THREE.ParametricBufferGeometry(klein, slices, stacks));
+		  	}
+		  
+		  	// Add 2d plane 
+		  	{
+			    const width = 9;
+			    const height = 9;
+			    const widthSegments = 2;
+			    const heightSegments = 2;
+			    addSolidGeometry(-2, 0, new THREE.PlaneBufferGeometry(width, height, widthSegments, heightSegments));
+		  	}
+
+		  	// Add a set of triangles centered around a point and project them onto a sphere 
+		  	{
+		    	const verticesOfCube = [
+		        	-1, -1, -1,    1, -1, -1,    1,  1, -1,    -1,  1, -1,
+		        	-1, -1,  1,    1, -1,  1,    1,  1,  1,    -1,  1,  1,
+		    	];
+		    
+		    	const indicesOfFaces = [
+			        2, 1, 0,    0, 3, 2,
+			        0, 4, 7,    7, 3, 0,
+			        0, 1, 5,    5, 4, 0,
+			        1, 2, 6,    6, 5, 1,
+			        2, 3, 7,    7, 6, 2,
+			        4, 5, 6,    6, 7, 4,
+		    	];
+			    const radius = 7;
+			    const detail = 2;
+			    addSolidGeometry(-1, 0, new THREE.PolyhedronBufferGeometry(verticesOfCube, indicesOfFaces, radius, detail));
+		  	}
+		  
+		  	// Add 2d disc with hole in the centre 
+		  	{
+		    	const innerRadius = 2;
+		    	const outerRadius = 7;
+		    	const segments = 18;
+		    	addSolidGeometry(0, 0, new THREE.RingBufferGeometry(innerRadius, outerRadius, segments));
+		  	}
+		  
+		  	// Add 2d outline that is triangulated - here a heart 
+		  	{
+			    const shape = new THREE.Shape();
+			    const x = -2.5;
+			    const y = -5;
+			    shape.moveTo(x + 2.5, y + 2.5);
+			    shape.bezierCurveTo(x + 2.5, y + 2.5, x + 2, y, x, y);
+			    shape.bezierCurveTo(x - 3, y, x - 3, y + 3.5, x - 3, y + 3.5);
+			    shape.bezierCurveTo(x - 3, y + 5.5, x - 1.5, y + 7.7, x + 2.5, y + 9.5);
+			    shape.bezierCurveTo(x + 6, y + 7.7, x + 8, y + 4.5, x + 8, y + 3.5);
+			    shape.bezierCurveTo(x + 8, y + 3.5, x + 8, y, x + 5, y);
+			    shape.bezierCurveTo(x + 3.5, y, x + 2.5, y + 2.5, x + 2.5, y + 2.5);
+			    addSolidGeometry(1, 0, new THREE.ShapeBufferGeometry(shape));
+		  	}
+
+		  	// Add sphere 
+		  	{
+		    	const radius = 7;
+		    	const widthSegments = 12;
+		    	const heightSegments = 8;
+		    	addSolidGeometry(2, 0, new THREE.SphereBufferGeometry(radius, widthSegments, heightSegments));
+		  	}
+		  	
+		  	// Add tetrahedron
+		  	{
+		    	const radius = 7;
+		    	addSolidGeometry(-2, -1, new THREE.TetrahedronBufferGeometry(radius));
+		  	}
+		  
+
+		  	// Add 3d text generated from a 3d font and string 
+		  	{
+		    	const loader = new THREE.FontLoader();
+		    	
+		    	function loadFont(url) {
+		      		return new Promise((resolve, reject) => {
+		        		loader.load(url, resolve, undefined, reject);
+		      		});
+		    	}
+
+		    	async function doit() {
+		      		const font = await loadFont('https://threejsfundamentals.org/threejs/resources/threejs/fonts/helvetiker_regular.typeface.json');  
+		      		const geometry = new THREE.TextBufferGeometry('three.js', {
+			        font: font,
+			        size: 3.0,
+			        height: .2,
+			        curveSegments: 12,
+			        bevelEnabled: true,
+			        bevelThickness: 0.15,
+			        bevelSize: .3,
+			        bevelSegments: 5,
+		      	});
+		      
+		      	const mesh = new THREE.Mesh(geometry, createMaterial());
+		      	geometry.computeBoundingBox();
+		      	geometry.boundingBox.getCenter(mesh.position).multiplyScalar(-1);
+
+		      	const parent = new THREE.Object3D();
+		      	parent.add(mesh);
+
+		      	addObject(-1, -1, parent);
+		    	}
+
+		    	doit();
+		  	}
+
+		  	// Add torus
+		  	{
+			    const radius = 5;
+			    const tubeRadius = 2;
+			    const radialSegments = 8;
+			    const tubularSegments = 24;
+			    addSolidGeometry(0, -1, new THREE.TorusBufferGeometry(radius, tubeRadius, radialSegments, tubularSegments));
+		  	}
+
+		  	// Add torus knot 
+		  	{
+			    const radius = 3.5;
+			    const tube = 1.5;
+			    const radialSegments = 8;
+			    const tubularSegments = 64;
+			    const p = 2;
+			    const q = 3;
+			    addSolidGeometry(1, -1, new THREE.TorusKnotBufferGeometry(radius, tube, tubularSegments, radialSegments, p, q));
+		  	}
+		  
+		  	// Add circle traced on a path - here sin curve 
+		  	{
+		    	class CustomSinCurve extends THREE.Curve {
+		      		constructor(scale) {
+		        		super();
+		        		this.scale = scale;
+		      		}
+		      
+		      		getPoint(t) {
+		        		const tx = t * 3 - 1.5;
+		        		const ty = Math.sin(2 * Math.PI * t);
+		        		const tz = 0;
+		        		return new THREE.Vector3(tx, ty, tz).multiplyScalar(this.scale);
+		      		}
+		    	}
+
+			    const path = new CustomSinCurve(4);
+			    const tubularSegments = 20;
+			    const radius = 1;
+			    const radialSegments = 8;
+			    const closed = false;
+			    addSolidGeometry(2, -1, new THREE.TubeBufferGeometry(path, tubularSegments, radius, radialSegments, closed));
+		  	}
+
+		  	// Add wireframe (generates edges only) cube
+		  	{
+			    const width = 8;
+			    const height = 8;
+			    const depth = 8;
+			    const thresholdAngle = 15;
+			    addLineGeometry(-1, -2, new THREE.EdgesGeometry(
+		        	new THREE.BoxBufferGeometry(width, height, depth),
+		        	thresholdAngle));
+		  	}
+		  	
+		  	// Add wireframe geometry that contains one line segment (2 points) per edge in the given geometry
+		  	{
+		    	const width = 8;
+		    	const height = 8;
+		    	const depth = 8;
+		    	addLineGeometry(1, -2, new THREE.WireframeGeometry(new THREE.BoxBufferGeometry(width, height, depth)));
+		  	}
+
+		  	// Render and animation code to display
+		  	function resizeRendererToDisplaySize(renderer) {
+			    const canvas = renderer.domElement;
+			    const width = canvas.clientWidth;
+			    const height = canvas.clientHeight;
+			    const needResize = canvas.width !== width || canvas.height !== height;
+		    	if (needResize) {
+		      		renderer.setSize(width, height, false);
+		    	}
+		    	return needResize;
+		  	}
+
+		  	function render(time) {
+		    	time *= 0.001;
+
+			    if (resizeRendererToDisplaySize(renderer)) {
+		      		const canvas = renderer.domElement;
+		      		camera.aspect = canvas.clientWidth / canvas.clientHeight;
+		      		camera.updateProjectionMatrix();
+		    	}
+
+		    	objects.forEach((obj, ndx) => {
+		      		const speed = .1 + ndx * .05;
+		      		const rot = time * speed;
+		      		obj.rotation.x = rot;
+		      		obj.rotation.y = rot;
+		    	});
+
+		    	renderer.render(scene, camera);
+
+		    	requestAnimationFrame(render);
+		  	}
+
+		  	requestAnimationFrame(render);
+		}
+
+		main();
+
+/*
+
+You might notice of most of them come in pairs of Geometry or BufferGeometry. The difference between the 2 types is effectively flexibility vs performance.
+
+BufferGeometry based primitives are the performance oriented types. The vertices for the geometry are generated directly into an efficient typed array format ready to be uploaded to the GPU for rendering. This means they are faster to start up and take less memory but if you want to modify their data they take what is often considered more complex programming to manipulate.
+
+Geometry based primitives are the more flexible, easier to manipulate type. They are built from JavaScript based classes like Vector3 for 3D points, Face3 for triangles. They take quite a bit of memory and before they can be rendered three.js will need to convert them to something similar to the corresponding BufferGeometry representation.
+
+If you know you are not going to manipulate a primitive or if you're comfortable doing the math to manipulate their internals then it's best to go with the BufferGeometry based primitives. If on the other hand you want to change a few things before rendering you might find the Geometry based primitives easier to deal with.
+
+*/
+
+	</script>	
+	</body>
+</html>
